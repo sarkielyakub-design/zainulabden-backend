@@ -36,28 +36,59 @@ def get_db():
 # REGISTER
 # =========================
 @router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: UserCreate,
+    db: Session = Depends(get_db)
+):
 
-    existing = db.query(User).filter(User.email == user.email).first()
+    existing = (
+        db.query(User)
+        .filter(User.email == user.email)
+        .first()
+    )
+
     if existing:
-        raise HTTPException(status_code=400, detail="Email already exists")
+        raise HTTPException(
+            status_code=400,
+            detail="Email already exists"
+        )
 
     new_user = User(
+
         name=user.name,
+
         email=user.email,
-        password=hash_password(user.password),
-        is_verified=True  # ✅ AUTO VERIFY
+
+        phone=user.phone,
+
+        address=user.address,
+
+        nationality=user.nationality,
+
+        password=hash_password(
+            user.password
+        ),
+
+        is_verified=True,
+
+        role="user",
+
+        is_admin=False,
     )
 
     db.add(new_user)
+
     db.commit()
+
     db.refresh(new_user)
 
     return {
-        "message": "Account created successfully",
-        "user_id": new_user.id
-    }
+        "message":
+            "Account created successfully",
 
+        "user_id":
+            new_user.id
+    }
 # =========================
 # VERIFY OTP
 # =========================

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 import os
 import uuid
+from app.models.contact import ContactMessage
 from app.models.bookings import Booking  # make sure exists
 from app.api.deps import get_db, require_admin
 from app.models.package import Package
@@ -11,7 +12,8 @@ import cloudinary.uploader
 from app.utils.cloudinary import cloudinary  # make sure this exists
 from app.models.package import Package
 from app.models.ticket import Ticket
-
+from app.models.bookings import Booking
+from app.models.package import Package
 from app.models.user import User
 router = APIRouter()
 
@@ -268,18 +270,95 @@ async def upload_image(
         "success": True,
         "image_url": package.image_url
     }
+# =========================================================
+# GET ALL BOOKINGS
+# =========================================================
 @router.get("/bookings")
 def get_admin_bookings(
     db: Session = Depends(get_db),
-    admin=Depends(require_admin),  # 🔐 ADD THIS
+    admin=Depends(require_admin),
 ):
-    bookings = db.query(Booking).all()
 
+    bookings = (
+        db.query(Booking)
+        .order_by(Booking.created_at.desc())
+        .all()
+    )
+
+    results = []
+
+    for booking in bookings:
+
+        package_title = None
+        ticket_airline = None
+        from_airport = None
+        to_airport = None
+
+        # PACKAGE
+        if booking.package_id:
+
+            package = (
+                db.query(Package)
+                .filter(
+                    Package.id == booking.package_id
+                )
+                .first()
+            )
+
+            if package:
+                package_title = package.title
+
+        # TICKET
+        if booking.ticket_id:
+
+            ticket = (
+                db.query(Ticket)
+                .filter(
+                    Ticket.id == booking.ticket_id
+                )
+                .first()
+            )
+
+            if ticket:
+                ticket_airline = ticket.airline
+                from_airport = ticket.from_airport
+                to_airport = ticket.to_airport
+
+        results.append({
+
+            "id": booking.id,
+
+            "surname": booking.surname,
+
+            "first_name": booking.first_name,
+
+            "email": booking.email,
+
+            "phone": booking.phone,
+
+            "amount": booking.amount,
+
+            "status": booking.status,
+
+            "created_at": booking.created_at,
+
+            "package_id": booking.package_id,
+
+            "ticket_id": booking.ticket_id,
+
+            "package_title": package_title,
+
+            "ticket_airline": ticket_airline,
+
+            "from_airport": from_airport,
+
+            "to_airport": to_airport,
+        })
 
     return {
         "success": True,
-        "total": len(bookings),
-        "data": bookings
+        "total": len(results),
+        "data": results
     }
 
 
@@ -413,4 +492,110 @@ def get_activity(
 
     return {
         "activities": activities
+    }
+# =========================================================
+# MARK BOOKING AS PAID
+# =========================================================
+@router.put("/bookings/{booking_id}/pay")
+def mark_booking_paid(
+    booking_id: int,
+    db: Session = Depends(get_db),
+):
+
+    booking = (
+        db.query(Booking)
+        .filter(
+            Booking.id == booking_id
+        )
+        .first()
+    )
+
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found"
+        )
+
+    # ALREADY PAID
+    if booking.status == "paid":
+        return {
+            "message":
+                "Already marked paid"
+        }
+
+    # UPDATE STATUS
+    booking.status = "paid"
+
+    db.commit()
+
+    # PACKAGE SLOT UPDATE
+    if booking.package_id:
+
+        package = (
+            db.query(Package)
+            .filter(
+                Package.id ==
+                booking.package_id
+            )
+            .first()
+        )
+
+        if package:
+            package.booked_slots += 1
+            db.commit()
+
+    return {
+        "message":
+            "Booking marked as paid"
+
+    }
+# =====================================
+# ADMIN CONTACT MESSAGES
+# =====================================
+@router.get("/messages")
+def get_contact_messages(
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
+
+    messages = (
+        db.query(ContactMessage)
+        .order_by(
+            ContactMessage.created_at.desc()
+        )
+        .all()
+    )
+
+    return {
+        "success": True,
+        "total": len(messages),
+        "data": messages,
+    }
+@router.get("/users")
+def get_users(
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
+
+    users = db.query(User).all()
+
+    data = []
+
+    for user in users:
+
+        data.append({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "phone": user.phone,
+            "address": user.address,
+            "nationality": user.nationality,
+            "role": user.role,
+            "created_at": user.created_at,
+        })
+
+    return {
+        "success": True,
+        "total": len(data),
+        "data": data,
     }
