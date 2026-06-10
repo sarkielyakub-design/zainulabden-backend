@@ -47,21 +47,20 @@ app = FastAPI(
 # =========================
 # 🌐 CORS
 # =========================
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "http://localhost:3000",
+    "https://zainulabden-travel.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-
-    allow_origins=[
-        "http://172.20.10.3:3000",
-        "http://localhost:3000",
-    ],
-
+    allow_origins=origins,
     allow_credentials=True,
-
     allow_methods=["*"],
-
     allow_headers=["*"],
 )
-
 # =========================
 # 📁 STATIC FILES
 # =========================
