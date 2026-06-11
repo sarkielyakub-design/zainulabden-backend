@@ -81,9 +81,7 @@ api_router.include_router(
     tags=["Contact"],
 )
 api_router.include_router(
-    flights.router,
-    prefix="/flights",
-    tags=["Flights"]
+    flights.router
 )
 api_router.include_router(
     flight_bookings.router,
