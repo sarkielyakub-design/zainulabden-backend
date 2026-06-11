@@ -8,10 +8,8 @@ from app.schemas.flight_payment import FlightPaymentRequest
 from app.core.config import settings
 
 router = APIRouter(
-    prefix="/flight-payments",
     tags=["Flight Payments"]
 )
-
 
 @router.post("/initialize")
 async def initialize_payment(

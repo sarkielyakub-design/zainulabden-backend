@@ -5,13 +5,9 @@ from uuid import uuid4
 from app.db.session import get_db
 from app.models.flight_booking import FlightBooking
 from app.schemas.flight_booking import FlightBookingCreate
-
 router = APIRouter(
-    prefix="/flight-bookings",
     tags=["Flight Bookings"]
 )
-
-
 @router.post("/")
 async def create_booking(
     payload: FlightBookingCreate,
