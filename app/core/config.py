@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     EMAIL_ADDRESS: str
     EMAIL_PASSWORD: str
 
+    # AMADEUS
+    AMADEUS_API_KEY: str = ""
+    AMADEUS_API_SECRET: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore"

@@ -8,6 +8,9 @@ from app.api.v1.endpoints import (
     admin,
     ticketst,
     contact,
+    flights,
+    flight_bookings,
+    flight_payments,
 )
 
 # =====================================
@@ -76,4 +79,19 @@ api_router.include_router(
     contact.router,
     prefix="/contact",
     tags=["Contact"],
+)
+api_router.include_router(
+    flights.router,
+    prefix="/flights",
+    tags=["Flights"]
+)
+api_router.include_router(
+    flight_bookings.router,
+    prefix="/flight-bookings",
+    tags=["Flight Bookings"]
+)
+api_router.include_router(
+    flight_payments.router,
+    prefix="/flight-payments",
+    tags=["Flight Payments"]
 )
