@@ -13,83 +13,72 @@ from app.api.v1.endpoints import (
     flight_payments,
 )
 
-# =====================================
-# MAIN API ROUTER
-# =====================================
 api_router = APIRouter()
 
-# =====================================
-# AUTH ROUTES
-# =====================================
+# Auth
 api_router.include_router(
     auth.router,
     prefix="/auth",
     tags=["Auth"],
 )
 
-# =====================================
-# USER ROUTES
-# =====================================
+# Users
 api_router.include_router(
     users.router,
     prefix="/users",
     tags=["Users"],
 )
 
-# =====================================
-# PACKAGE ROUTES
-# =====================================
+# Packages
 api_router.include_router(
     packages.router,
     prefix="/packages",
     tags=["Packages"],
 )
 
-# =====================================
-# BOOKING ROUTES
-# =====================================
+# Bookings
 api_router.include_router(
     bookings.router,
     prefix="/bookings",
     tags=["Bookings"],
 )
 
-# =====================================
-# ADMIN ROUTES
-# =====================================
+# Admin
 api_router.include_router(
     admin.router,
     prefix="/admin",
     tags=["Admin"],
 )
 
-# =====================================
-# TICKET ROUTES
-# =====================================
+# Tickets
 api_router.include_router(
     ticketst.router,
     prefix="/tickets",
     tags=["Tickets"],
 )
 
-# =====================================
-# CONTACT ROUTES
-# =====================================
+# Contact
 api_router.include_router(
     contact.router,
     prefix="/contact",
     tags=["Contact"],
 )
+
+# Flights
 api_router.include_router(
     flights.router
 )
+
+# Flight Bookings
 api_router.include_router(
     flight_bookings.router,
     prefix="/flight-bookings",
-    tags=["Flight Bookings"]
+    tags=["Flight Bookings"],
 )
+
+# Flight Payments
 api_router.include_router(
     flight_payments.router,
     prefix="/flight-payments",
-    tags=["Flight Payments"]
+    tags=["Flight Payments"],
 )
